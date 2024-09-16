@@ -1,0 +1,11 @@
+/* For changing the placeholder text color */
+.ant-picker-input input::placeholder {
+    color: white !important;
+  }
+  .ant-picker:hover {
+    background-color: transparent !important;
+  }  
+
+  .ant-picker-suffix {
+    color: white !important;
+  }
