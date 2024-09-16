@@ -5,7 +5,7 @@ import Requests from "./pages/requests";
 import Login from "./pages/login";
 import { useEffect, useState } from "react";
 
-axios.defaults.baseURL = "http://localhost:3001"
+axios.defaults.baseURL = "http://3.6.230.95"
 axios.defaults.withCredentials = false
 
 function App() {
