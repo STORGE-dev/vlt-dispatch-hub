@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import Settings from "./pages/settings";
 import Alert from "./pages/alert";
 
-axios.defaults.baseURL = "http://localhost:3001"
+axios.defaults.baseURL = "http://3.6.230.95"
 axios.defaults.withCredentials = false
 
 function App() {
