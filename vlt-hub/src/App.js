@@ -1,11 +1,13 @@
 import { Routes, Route, useNavigate } from "react-router-dom"
 import axios from "axios";
-import HomePage from "./pages/Home";
+import Normal from "./pages/normal";
 import Requests from "./pages/requests";
 import Login from "./pages/login";
 import { useEffect, useState } from "react";
+import Settings from "./pages/settings";
+import Alert from "./pages/alert";
 
-axios.defaults.baseURL = "http://3.6.230.95"
+axios.defaults.baseURL = "http://localhost:3001"
 axios.defaults.withCredentials = false
 
 function App() {
@@ -29,8 +31,10 @@ function App() {
   return (
 
     <Routes>
-      <Route path="/" element={<HomePage />} />
+      <Route path="/" element={<Normal />} />
       <Route path="/requests" element={<Requests />} />
+      <Route path="/alert-request" element={<Alert />} />
+      <Route path="/settings" element={<Settings />} />
       <Route path="/login" element={<Login />} />
 
     </Routes>

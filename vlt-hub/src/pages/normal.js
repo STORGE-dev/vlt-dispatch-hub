@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { TimePicker, DatePicker, Modal, Spin, message } from "antd";
 import axios from "axios";
 import "./custom.css"
+import dayjs from 'dayjs';
 import Header from "../Components/Header";
 
 
@@ -10,7 +11,7 @@ const HomePage = () => {
   const [inputValue, setInputValue] = useState("");
   const [updtId, setUpdtId] = useState("");
   const [vltDate, setDate] = useState("");
-  const [vlttime, setTime] = useState("");
+  const [vlttime, setTime] = useState(null);
   const [latitude, setlatitude] = useState("");
   const [longitude, setlongitude] = useState("");
   const [createBtn, setCreateBtn] = useState(true); // For unique item IDs
@@ -33,12 +34,12 @@ const HomePage = () => {
     try {
       setisSpin(true);
       const TD = formatDateTimeToGPS(vlttime, vltDate);
-      const response = await axios.post('http://3.6.153.131:3000/trak24-liveupdate', {
-        Imei:inputValue,
+      const response = await axios.post('http://3.6.153.131:3000/trak24-liveupdate-alert-off', {
+        Imei: inputValue,
         Date: TD.formattedDate,
         Time: TD.formattedTime,
-       latitude:latitude,
-      longitude:longitude  
+        latitude: latitude,
+        longitude: longitude
       });
       console.log('Response data:', response.data);
       IncrRequest();
@@ -58,8 +59,8 @@ const HomePage = () => {
       period.toLowerCase() === "pm" && hours !== 12
         ? hours + 12
         : hours === 12
-        ? 0
-        : hours;
+          ? 0
+          : hours;
 
     const dateObject = new Date(year, month - 1, day, adjustedHours, minutes);
 
@@ -88,8 +89,8 @@ const HomePage = () => {
         {
           updtId: updtId,
           Imei: inputValue,
-          Date: vlttime,
-          Time: vltDate,
+          Date: vltDate,
+          Time: vlttime,
           latitude: latitude,
           longitude: longitude,
           status: "success",
@@ -119,8 +120,8 @@ const HomePage = () => {
 
   const ClearInputs = () => {
     setInputValue("");
-    setDate("");
-    setTime("");
+    setDate(null);
+    setTime(null)
     setlatitude("");
     setlongitude("");
   };
@@ -134,11 +135,19 @@ const HomePage = () => {
     setTime(timeString);
     console.log(time, timeString);
   };
+  console.log(vlttime, "vvv")
 
+  useEffect(() => {
+    const now = dayjs(); // Get the current date and time using Day.js
+    setDate(now.format('DD MM YYYY')); // Set current date in the specified format
+    setTime(now.format('h:mm a'));
+    setlatitude("1009.981600N") 
+    setlongitude("076.299900E")// Set current time in the specified format
+  }, []);
   return (
     <>
       <Spin size="large" spinning={isSpin} fullscreen={true} />
-      <Header/>
+      <Header />
       <div className="mb-5">
         <div
           className="flex flex-col justify-center items-center"
@@ -146,10 +155,10 @@ const HomePage = () => {
         >
           <div className="flex flex-col mb-10 items-center justify-center">
             <h1 className="text-5xl font-bold text-white">
-              Update AIS 140 VLT Units
+              Update AIS 140 VLT Units - NRM
             </h1>
             <p className="text-xl text-white mt-2">
-              Update real time informations of AIS 140
+              Dispatch Normal request to AIS 140
             </p>
           </div>
           {createBtn === true && (
@@ -157,7 +166,7 @@ const HomePage = () => {
               onClick={() => setCreateBtn(false)}
               className="bg-green-800 animate-pulse text-white py-3 px-6 rounded-lg text-lg hover:bg-green-700 w-full max-w-xs mb-4"
             >
-              Create Update Request
+              Create Normal Request
             </button>
           )}
           {createBtn === false && (
@@ -176,7 +185,7 @@ const HomePage = () => {
                     value={inputValue}
                     onChange={handleInputChange}
                     placeholder="Unit IMEI"
-                    className="border p-2 rounded-md w-[300px] text-white bg-transparent hover:border-blue-500"
+                    className="border p-2 rounded-md w-[300px] text-white bg-transparent hover:border-blue-500 "
                   />
                 </div>
 
@@ -189,11 +198,12 @@ const HomePage = () => {
                   </label>
                   <TimePicker
                     id="timePicker"
-                    use12Hours
-                    format="h:mm a"
-                    size="large"
-                    onChange={onChangeTime}
-                    className="w-full bg-transparent text-white"
+                    style={{ color: "white" }}
+                    use12Hours // Use 12-hour format
+                    value={vlttime ? dayjs(vlttime, 'h:mm a') : null} // Set value with dayjs
+                    format="h:mm a" // Format to 12-hour AM/PM
+                    size="large" // Large size input
+                    onChange={onChangeTime} // onChange handler
                   />
                 </div>
 
@@ -206,11 +216,11 @@ const HomePage = () => {
                   </label>
                   <DatePicker
                     id="datePicker"
-                    onChange={onChangeDate}
-                    format="DD MM YYYY"
-                    size="large"
-                    className="w-full bg-transparent text-white"
-                    needConfirm
+                    onChange={onChangeDate} // onChange handler for date selection
+                    format="DD MM YYYY" // Custom date format
+                    value={vltDate ? dayjs(vltDate, 'DD MM YYYY') : null} // Display the selected date
+                    size="large" // Large size input
+                    className="w-full bg-transparent text-white" // Custom styling (className)
                   />
                 </div>
               </div>
@@ -265,39 +275,7 @@ const HomePage = () => {
           )}
         </div>
 
-        {/* {createBtn === false && (
-      <div
-       className="flex flex-col justify-center items-center"
-      >
-        <div className="flex flex-row w-full max-w-xs">
-          {items.map((item) => (
-            <div
-              key={item.id}
-              className="flex items-center justify-between space-x-5 bg-gray-800 text-white p-2 rounded mb-2"
-            >
-              <span>{item.value}</span>
-              <button
-                onClick={() => handleDelete(item.id)}
-                className=" text-white rounded-full "
-              >
-                X
-              </button>
-            </div>
-          ))}
-        </div>
 
-        <input
-          type="text"
-          value={inputValue}
-          onChange={handleInputChange}
-          onKeyDown={handleKeyPress}
-          placeholder="Type something and press comma"
-          className="border p-2 rounded mb-4"
-        />
-
-        
-      </div>
-      )} */}
       </div>
 
       <Modal
@@ -307,17 +285,17 @@ const HomePage = () => {
         open={modalOpen}
         maskClosable={false}
         keyboard={false}
-        onOk={() => {}}
-        onCancel={() => {}}
+        onOk={() => { }}
+        onCancel={() => { }}
         footer={[]}
       >
         <>
           <Spin size="large" spinning={isSpin} fullscreen={true} />
           <div className="flex flex-col mb-10 items-center mt-10 justify-center">
-            <h1 className="text-2xl font-bold text-black">
+            <h1 className="text-2xl font-bold text-white">
               Was the request successful ?
             </h1>
-            <p className="text-sm text-black mt-2">
+            <p className="text-sm text-white mt-2">
               Continue by confirming the current request status
             </p>
             <div className="flex space-x-5 mt-5">
@@ -333,6 +311,7 @@ const HomePage = () => {
                   ClearInputs();
                   setModalOpen(false);
                   message.success("Status Recorded!");
+                  window.location.reload();
                 }}
                 className="bg-green-800 text-white w-fit h-fit rounded-lg text-lg hover:bg-green-700 py-2 px-8 mb-4"
               >

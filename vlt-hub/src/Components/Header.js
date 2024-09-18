@@ -27,8 +27,10 @@ const Header = () => {
           <div className='flex-grow'></div>
 
           <div className='flex flex-row space-x-16'>
-            <a href='/' className='text-gray-400 hover:text-white text-base hover:cursor-pointer'>Create Request</a>
+            <a href='/' className='text-gray-400 hover:text-white text-base hover:cursor-pointer'>Normal Request</a>
+            <a href='/alert-request' className='text-gray-400 hover:text-white text-base hover:cursor-pointer'>Alert Request</a>
             <a href='/requests' className='text-gray-400 hover:text-white text-base hover:cursor-pointer'>Requests</a>
+            {/* <a href='/settings' className='text-gray-400 hover:text-white text-base hover:cursor-pointer'>Settings</a> */}
             <a onClick={HandleLogout} className='text-gray-400 hover:text-white text-base hover:cursor-pointer'>Log out</a>
           </div>
         </div>
