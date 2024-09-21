@@ -17,7 +17,7 @@ const Header = () => {
   return (
     <>
       <Spin size="large" spinning={isSpin} fullscreen={true} />
-      <div className='w-full h-fit bg-black p-5 border-b border-gray-600'>
+      <div className='w-full h-fit bg-black p-5 '>
         <div className='flex items-center'>
           <div className='flex-shrink-0'>
             <a href='/'>

@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import Header from "../Components/Header";
-import { Dropdown, Popconfirm, Spin, message, Pagination, Modal, DatePicker, TimePicker } from "antd";
+import { Dropdown, Popconfirm, Spin, message, Pagination, Modal, DatePicker, TimePicker, Segmented, Switch } from "antd";
 import axios from "axios";
 import "./custom.css"
 import dayjs from 'dayjs';
+import History from "../Components/History";
 
 
 const Normal = () => {
@@ -12,9 +13,11 @@ const Normal = () => {
   const [paginatedRequests, setPaginatedRequests] = useState([]);
   const [isSpin, setIsSpin] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [segmentFilter, setSegmentFilter] = useState('ALL');
   const [pageSize, setPageSize] = useState(5);
 
   const [inputValue, setInputValue] = useState("");
+  const [DispatchType, setDispatchType] = useState("");
   const [updtId, setUpdtId] = useState("");
   const [vltDate, setDate] = useState(null);
   const [vlttime, setTime] = useState(null);
@@ -22,15 +25,16 @@ const Normal = () => {
   const [longitude, setlongitude] = useState("");// For unique item IDs
   const [modalOpen, setModalOpen] = useState(false);
   const [modalEdit, setmodalEdit] = useState(false);
+  const [alertMode, setalertMode] = useState(false);
 
   // Define dropdown menu items for status change actions
   // eslint-disable-next-line no-sparse-arrays
-  const items = (id, curStatus, Imei, latitude, longitude, date, time) => [
+  const items = (id, curStatus, Imei, latitude, longitude, date, time, type) => [
     {
       key: "1",
       label: (
         <a
-          onClick={() => InitEditRequest(Imei, latitude, longitude, date, time)}
+          onClick={() => InitEditRequest(Imei, latitude, longitude, date, time, type)}
           style={{ color: "#00000" }}
         >
           Dispatch Again
@@ -92,16 +96,17 @@ const Normal = () => {
   ];
 
 
-  
 
-  const InitEditRequest = (Imei, latitude, longitude, date, time) => {
-    console.log(Imei, latitude, longitude, date, time)
+
+  const InitEditRequest = (Imei, latitude, longitude, date, time, type) => {
+    console.log(Imei, latitude, longitude, date, time, type)
     setInputValue(Imei)
     setlatitude(latitude)
     setlongitude(longitude)
-  setDate(date)
+    setDate(date)
     setTime(time)
     handleEditTime()
+    setDispatchType(type)
     setmodalEdit(true)
   }
 
@@ -172,14 +177,40 @@ const Normal = () => {
     try {
       setIsSpin(true);
       const TD = formatDateTimeToGPS(vlttime, vltDate);
-      const response = await axios.post('http://3.6.153.131:3000/trak24-liveupdate', {
-        Imei: inputValue,
-        Date: TD.formattedDate,
-        Time: TD.formattedTime,
-        latitude: latitude,
-        longitude: longitude
-      });
-      console.log('Response data:', response.data);
+
+
+      if (DispatchType === 'NRM') {
+        await axios.post('http://3.6.153.131:3000/trak24-liveupdate', {
+          Imei: inputValue,
+          Date: TD.formattedDate,
+          Time: TD.formattedTime,
+          latitude: latitude,
+          longitude: longitude
+        });
+
+      } else {
+        if (alertMode === false) {
+          console.log('off')
+          await axios.post('http://3.6.153.131:3000/trak24-liveupdate-alert-off', {
+            Imei: inputValue,
+            Date: TD.formattedDate,
+            Time: TD.formattedTime,
+            latitude: latitude,
+            longitude: longitude
+          });
+        } else {
+          console.log('on')
+          await axios.post('http://3.6.153.131:3000/trak24-liveupdate-alert-on', {
+            Imei: inputValue,
+            Date: TD.formattedDate,
+            Time: TD.formattedTime,
+            latitude: latitude,
+            longitude: longitude
+          });
+        }
+
+      }
+
       IncrRequest();
       setIsSpin(false);
       setModalOpen(true);
@@ -194,17 +225,21 @@ const Normal = () => {
         {
           updtId: updtId,
           Imei: inputValue,
-          Date:  vltDate,
+          Date: vltDate,
           Time: vlttime,
           latitude: latitude,
           longitude: longitude,
           status: "success",
+          reqType: DispatchType
         }
       );
       setUpdtId(res.data.data);
     } catch (error) {
       console.log(error);
     }
+  };
+  const handleChange = (checked) => {
+    setalertMode(checked);
   };
 
 
@@ -264,6 +299,47 @@ const Normal = () => {
     }
   };
 
+  const getNRMRequests = async () => {
+    try {
+      setIsSpin(true);
+
+      const response = await axios.get("/api/v1/requests/get-nrm-requests");
+      const allRequests = response.data.data.reverse();
+
+      setVltRequests(allRequests);
+      setPaginatedRequests(paginateRequests(allRequests, currentPage, pageSize)); // Initial pagination
+      setIsSpin(false);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const getALTRequests = async () => {
+    try {
+      setIsSpin(true);
+
+      const response = await axios.get("/api/v1/requests/get-alt-requests");
+      const allRequests = response.data.data.reverse();
+
+      setVltRequests(allRequests);
+      setPaginatedRequests(paginateRequests(allRequests, currentPage, pageSize)); // Initial pagination
+      setIsSpin(false);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    if (segmentFilter === 'NRM') {
+      getNRMRequests();
+    } else if (segmentFilter === 'ALT') {
+      getALTRequests();
+    } else {
+      getRequests(); // Corrected to call getRequests()
+    }
+  }, [segmentFilter]);
+
+
 
   const updateStatus = async (id, status) => {
     try {
@@ -290,6 +366,7 @@ const Normal = () => {
   useEffect(() => {
     getRequests();
   }, []);
+
   return (
     <>
       <Spin size="large" spinning={isSpin} fullscreen={true} />
@@ -298,7 +375,7 @@ const Normal = () => {
         <div className="flex flex-col mb-2 items-center justify-center">
           <h1 className="text-5xl font-bold text-white">Update Requests</h1>
           <p className="text-xl text-white mt-2">
-            Update request informations | Count resets every month
+            Request history | Re-Dispatch requests | Clear request history
           </p>
         </div>
 
@@ -325,6 +402,18 @@ const Normal = () => {
               <h1 className="text-lg">Unuccessful Requests</h1>
             </div>
           </div>
+        </div>
+
+        <div className="flex space-x-8">
+          <Segmented
+            options={['ALL', 'NRM', 'ALT']}
+            size="large"
+            onChange={(value) => {
+              setSegmentFilter(value);
+              setCurrentPage(1);
+            }}
+          />
+           <History GetData={getRequests}/>
         </div>
         {paginatedRequests.length > 0 &&
           paginatedRequests?.map((req) => (
@@ -365,6 +454,7 @@ const Normal = () => {
                   </div>
 
                   <div className="flex flex-col items-start">
+
                     <div className="flex space-x-2">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -446,6 +536,27 @@ const Normal = () => {
                       </div>
                     </div>
                   </div>
+
+                  <div className="flex flex-col items-start">
+                    <div className="flex space-x-2">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth={1.5}
+                        stroke="currentColor"
+                        className="size-4 text-gray-400"
+                      >
+                         <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+                      </svg>
+
+                      <div>
+                        <h2 className="text-gray-400 text-xs">Type</h2>
+                        <h1 className=" text-white text-sm">{req?.reqType}</h1>
+                      </div>
+                    </div>
+                  </div>
+
                 </div>
               </div>
 
@@ -462,7 +573,7 @@ const Normal = () => {
                 </div>
                 <Dropdown
                   menu={{
-                    items: items(req._id, req.status, req?.Imei, req?.latitude, req?.longitude, req?.Date, req?.Time),
+                    items: items(req._id, req.status, req?.Imei, req?.latitude, req?.longitude, req?.Date, req?.Time, req?.reqType),
                   }}
                   placement="bottomRight"
                   arrow={{
@@ -511,7 +622,7 @@ const Normal = () => {
         open={modalEdit}
         keyboard={false}
         onOk={() => { }}
-        onCancel={() => { ClearInputs();setmodalEdit(false);}}
+        onCancel={() => { ClearInputs(); setmodalEdit(false); }}
         footer={[]}
         style={{ backgroundColor: "black" }}
       >
@@ -544,14 +655,14 @@ const Normal = () => {
                   Select Time
                 </label>
                 <TimePicker
-        id="timePicker"
-        style={{ color: 'white' }}
-        use12Hours // Use 12-hour format
-        value={vlttime ? dayjs(vlttime, 'h:mm a') : null} // Set value with dayjs
-        format="h:mm a" // Format to 12-hour AM/PM
-        size="large" // Large size input
-        onChange={onChangeTime} // onChange handler
-      />
+                  id="timePicker"
+                  style={{ color: 'white' }}
+                  use12Hours // Use 12-hour format
+                  value={vlttime ? dayjs(vlttime, 'h:mm a') : null} // Set value with dayjs
+                  format="h:mm a" // Format to 12-hour AM/PM
+                  size="large" // Large size input
+                  onChange={onChangeTime} // onChange handler
+                />
               </div>
 
               <div className="flex flex-col w-full">
@@ -573,6 +684,21 @@ const Normal = () => {
             </div>
 
             <div className="flex  space-x-5 ">
+              {DispatchType === 'ALT' ? (
+                <div className="flex flex-col w-full space-y-2">
+                  <label
+                    htmlFor="latInput"
+                    className="mb-1 text-gray-400 text-xs"
+                  >
+                    Alert Mode
+                  </label>
+                  <div>
+                    <Switch checkedChildren="ON" unCheckedChildren="OFF" onChange={handleChange} defaultValue={alertMode} />
+                  </div>
+
+                </div>
+              ) : (null)}
+
               <div className="flex flex-col w-full">
                 <label
                   htmlFor="latInput"
@@ -646,7 +772,7 @@ const Normal = () => {
             </p>
             <div className="flex space-x-5 mt-5">
               <button
-               onClick={ConfirmFailedRequest}
+                onClick={ConfirmFailedRequest}
                 className="bg-red-800 text-white w-fit h-fit rounded-lg text-lg hover:bg-red-700 py-2 px-8 mb-4"
               >
                 Failed

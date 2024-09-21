@@ -29,11 +29,15 @@ app.use("/api/v1/auth",authRoute)
 app.use("/api/v1/requests", requestRoute);
 app.use(express.static('public'));
 
-app.use(express.static(path.join(__dirname, "vlt-hub/build")))
-app.use(express.static(path.join(__dirname, 'vlt-hub', 'public')));
+// app.use(express.static(path.join(__dirname, "vlt-hub/build")))
+// app.use(express.static(path.join(__dirname, 'vlt-hub', 'public')));
 
-app.get('*', (req, res) => {
-  res.sendFile(path.resolve(__dirname, 'vlt-hub', 'build', 'index.html'));
+// app.get('*', (req, res) => {
+//   res.sendFile(path.resolve(__dirname, 'vlt-hub', 'build', 'index.html'));
+// });
+
+app.get("/", (req, res) => {
+  res.send("<h1>Welcome to VISION!</h1>");
 });
 
 

@@ -34,23 +34,34 @@ const HomePage = () => {
     try {
       setisSpin(true);
       const TD = formatDateTimeToGPS(vlttime, vltDate);
-      const response = await axios.post('http://3.6.153.131:3000/trak24-liveupdate-alert-off', {
+      console.log(TD.formattedDate,TD.formattedTime)
+      let reducedYear = (parseInt(vltDate.slice(0, 2)) - 1).toString();
+            let reducedDate = reducedYear + vltDate.slice(2);
+            let parts = reducedDate.split(" ");
+            let day = parts[0];
+            let month = parts[1];
+            let year = parts[2].slice(2); // Get the last two digits of the year
+            let formattedDate2 = day + month + year;
+            console.log(formattedDate2)
+      const response = await axios.post('http://3.6.153.131:3000/trak24-liveupdate', {
         Imei: inputValue,
+        Date2: formattedDate2,
         Date: TD.formattedDate,
-        Time: TD.formattedTime,
+       Time: TD.formattedTime,
+       //Time: '010044',
         latitude: latitude,
         longitude: longitude
       });
       console.log('Response data:', response.data);
       IncrRequest();
       setisSpin(false);
-      setModalOpen(true);
+      //setModalOpen(true);
     } catch (error) {
       console.log(error);
     }
   };
 
-  function formatDateTimeToGPS(time, date) {
+function formatDateTimeToGPS(time, date) {
     const [day, month, year] = date.split(" ").map(Number);
     const [timePart, period] = time.split(" ");
     const [hours, minutes] = timePart.split(":").map(Number);
@@ -81,6 +92,7 @@ const HomePage = () => {
       formattedDate,
     };
   }
+
 
 
   const IncrRequest = async () => {

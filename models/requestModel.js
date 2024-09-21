@@ -21,6 +21,10 @@ const requestSchema = new mongoose.Schema({
         type: String,
         default: "success",
     },
+    reqType:{
+        type: String,
+        default: "NRM"
+    }
 
 
 },

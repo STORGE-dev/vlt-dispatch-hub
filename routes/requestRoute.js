@@ -1,5 +1,5 @@
 import express from "express";
-import { CreateRequest, GetAllRequests, GetRequestData, UpdateStatus } from "../Controllers/requestControllers.js";
+import { CreateRequest, deleteAllRequests, GetAllRequests, GetALTRequests, GetNRMRequests, GetRequestData, resetFailedAndMonthlyReqs, UpdateStatus } from "../Controllers/requestControllers.js";
 const router = express.Router();
 
 
@@ -22,11 +22,34 @@ router.put(
   );
 
   router.get(
+    "/get-nrm-requests",
+    GetNRMRequests
+  
+  );
+
+  router.get(
+    "/get-alt-requests",
+    GetALTRequests
+  
+  );
+
+  router.get(
     "/get-request-data",
     GetRequestData
   
   );
+  
+  router.delete(
+    "/delete-all-reqs",
+    deleteAllRequests
+  
+  );
 
+  router.delete(
+    "/delete-req-count",
+    resetFailedAndMonthlyReqs
+  
+  );
 
   export default router;
 

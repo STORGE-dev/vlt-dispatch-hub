@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import Settings from "./pages/settings";
 import Alert from "./pages/alert";
 
-axios.defaults.baseURL = "http://3.6.230.95"
+axios.defaults.baseURL = "http://localhost:3000"
 axios.defaults.withCredentials = false
 
 function App() {
@@ -34,7 +34,7 @@ function App() {
       <Route path="/" element={<Normal />} />
       <Route path="/requests" element={<Requests />} />
       <Route path="/alert-request" element={<Alert />} />
-      <Route path="/settings" element={<Settings />} />
+      {/* <Route path="/settings" element={<Settings />} /> */}
       <Route path="/login" element={<Login />} />
 
     </Routes>

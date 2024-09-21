@@ -35,28 +35,40 @@ const HomePage = () => {
         try {
             setisSpin(true);
             const TD = formatDateTimeToGPS(vlttime, vltDate);
-            if(alertMode===false){
+            let reducedYear = (parseInt(vltDate.slice(0, 2)) - 1).toString();
+            let reducedDate = reducedYear + vltDate.slice(2);
+            let parts = reducedDate.split(" ");
+            let day = parts[0];
+            let month = parts[1];
+            let year = parts[2].slice(2); // Get the last two digits of the year
+            let formattedDate2 = day + month + year;
+            console.log(formattedDate2)
+            if (alertMode === false) {
+
                 await axios.post('http://3.6.153.131:3000/trak24-liveupdate-alert-off', {
                     Imei: inputValue,
                     Date: TD.formattedDate,
+                    Date2: formattedDate2,
                     Time: TD.formattedTime,
                     latitude: latitude,
                     longitude: longitude
                 });
-            }else{
+            } else {
+                
                 await axios.post('http://3.6.153.131:3000/trak24-liveupdate-alert-on', {
                     Imei: inputValue,
                     Date: TD.formattedDate,
+                    Date2: reducedDate,
                     Time: TD.formattedTime,
                     latitude: latitude,
                     longitude: longitude
                 });
             }
-            
+
             message.success("Dispatched successfully");
             IncrRequest();
             setisSpin(false);
-            setModalOpen(true);
+            //setModalOpen(true);
         } catch (error) {
             console.log(error);
         }
@@ -94,7 +106,6 @@ const HomePage = () => {
         };
     }
 
-
     const IncrRequest = async () => {
         try {
             const res = await axios.post("/api/v1/requests/incr-request",
@@ -106,6 +117,7 @@ const HomePage = () => {
                     latitude: latitude,
                     longitude: longitude,
                     status: "success",
+          reqType:'ALT'
                 }
             );
             setUpdtId(res.data.data);
@@ -157,6 +169,9 @@ const HomePage = () => {
         setlatitude("1009.981600N")
         setlongitude("076.299900E")// Set current time in the specified format
     }, []);
+    const handleChange = (checked) => {
+        setalertMode(checked);
+      };
     return (
         <>
             <Spin size="large" spinning={isSpin} fullscreen={true} />
@@ -248,7 +263,7 @@ const HomePage = () => {
                                         Alert Mode
                                     </label>
                                     <div>
-                                        <Switch checkedChildren="ON" unCheckedChildren="OFF" defaultValue={alertMode} />
+                                        <Switch checkedChildren="ON" unCheckedChildren="OFF" onChange={handleChange} defaultValue={alertMode} />
                                     </div>
 
                                 </div>

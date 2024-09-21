@@ -86,6 +86,51 @@ export const  GetAllRequests = async (req, res) => {
     }
   };
 
+  export const  GetNRMRequests = async (req, res) => {
+    try {
+      const data = await Requests.find({ reqType: 'NRM' });
+  
+      console.log(data);
+  
+      // Send success response
+      return res.status(200).json({
+        message: 'Success',
+        status: 200,
+        data: data,
+      });
+    } catch (error) {
+      console.error(error);
+  
+      // Handle internal server error
+      return res.status(500).json({
+        message: 'Internal Server Error',
+        status: 500,
+      });
+    }
+  };
+
+  export const  GetALTRequests = async (req, res) => {
+    try {
+      const data = await Requests.find({ reqType: 'ALT' });
+  
+      console.log(data);
+  
+      // Send success response
+      return res.status(200).json({
+        message: 'Success',
+        status: 200,
+        data: data,
+      });
+    } catch (error) {
+      console.error(error);
+  
+      // Handle internal server error
+      return res.status(500).json({
+        message: 'Internal Server Error',
+        status: 500,
+      });
+    }
+  };
 
   export const GetRequestData = async (req, res) => {
     try {
@@ -112,7 +157,7 @@ export const  GetAllRequests = async (req, res) => {
 
   export const CreateRequest = async (req, res) => {
     try {
-      const { Imei, Date, Time, latitude, longitude, status } = req.body;
+      const { Imei, Date, Time, latitude, longitude, status,reqType } = req.body;
   
       // Check for missing fields
       if (!Imei || !Date || !Time || !latitude || !longitude || !status) {
@@ -129,6 +174,7 @@ export const  GetAllRequests = async (req, res) => {
         latitude,
         longitude,
         status,
+        reqType
       });
   
       await newRequest.save();
@@ -164,3 +210,27 @@ export const  GetAllRequests = async (req, res) => {
       });
     }
   };
+
+  export const deleteAllRequests = async (req, res) => {
+    try {
+        // Deletes all documents in the collection
+        await Requests.deleteMany({});
+        res.status(200).json({ message: 'All requests have been successfully deleted.' });
+    } catch (error) {
+        // Catch any error that occurs during deletion
+        res.status(500).json({ message: 'Error deleting requests.', error: error.message });
+    }
+};
+
+export const resetFailedAndMonthlyReqs = async (req, res) => {
+  try {
+      // Find and update all documents, setting failedReqs and monthlyReqs to zero
+      await RequestData.updateMany({}, { 
+          $set: { failedReqs: 0, monthlyReqs: 0 }
+      });
+      res.status(200).json({ message: 'Failed and Monthly Requests have been reset to zero.' });
+  } catch (error) {
+      // Handle any errors during the update process
+      res.status(500).json({ message: 'Error resetting fields.', error: error.message });
+  }
+};
