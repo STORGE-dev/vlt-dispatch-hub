@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import { Popconfirm, Spin, message, Modal, Checkbox } from "antd";
+import { Spin, message, Modal, Checkbox } from "antd";
 import axios from "axios";
 
-function History({GetData}) {
+function History({ GetData }) {
     const [isSpin, setIsSpin] = useState(false);
     const [modalOpen, setModalOpen] = useState(false);
     const [verified, setVerified] = useState(false);
@@ -34,15 +34,24 @@ function History({GetData}) {
             setIsSpin(true);
             if (allReqs === true) {
                 await axios.delete("/api/v1/requests/delete-all-reqs");
+                GetData()
+                setIsSpin(false);
+                setModalOpen(false)
+                setVerified(false)
+                message.success('Delete Successfull');
             }
             if (reqCount === true) {
                 await axios.delete("/api/v1/requests/delete-req-count");
+                GetData()
+                setIsSpin(false);
+                setModalOpen(false)
+                setVerified(false)
+                message.success('Delete Successfull');
+            } else {
+                setIsSpin(false);
+                message.warning('Choose an option');
             }
-            GetData()
-            setIsSpin(false);
-            setModalOpen(false)
-            setVerified(true)
-            message.success('Delete Successfull');
+
         } catch (error) {
             console.log(error)
         }
@@ -108,14 +117,12 @@ function History({GetData}) {
 
                                 <div className="space-x-5 mb-5">
                                     <Checkbox
-                                        //   checked={requestCount === 'daily'}
                                         onChange={(e) => setreqCount(e.target.checked)}
                                         className="text-white"
                                     >
                                         Request Count
                                     </Checkbox>
                                     <Checkbox
-                                        //   checked={requestCount === 'twoDays'}
                                         onChange={(e) => setallReqs(e.target.checked)}
                                         className="text-white"
                                     >

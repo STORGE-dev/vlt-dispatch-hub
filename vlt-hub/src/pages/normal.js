@@ -34,28 +34,17 @@ const HomePage = () => {
     try {
       setisSpin(true);
       const TD = formatDateTimeToGPS(vlttime, vltDate);
-      console.log(TD.formattedDate,TD.formattedTime)
-      let reducedYear = (parseInt(vltDate.slice(0, 2)) - 1).toString();
-            let reducedDate = reducedYear + vltDate.slice(2);
-            let parts = reducedDate.split(" ");
-            let day = parts[0];
-            let month = parts[1];
-            let year = parts[2].slice(2); // Get the last two digits of the year
-            let formattedDate2 = day + month + year;
-            console.log(formattedDate2)
       const response = await axios.post('http://3.6.153.131:3000/trak24-liveupdate', {
         Imei: inputValue,
-        Date2: formattedDate2,
         Date: TD.formattedDate,
        Time: TD.formattedTime,
-       //Time: '010044',
         latitude: latitude,
         longitude: longitude
       });
       console.log('Response data:', response.data);
       IncrRequest();
       setisSpin(false);
-      //setModalOpen(true);
+     setModalOpen(true);
     } catch (error) {
       console.log(error);
     }
@@ -121,7 +110,7 @@ function formatDateTimeToGPS(time, date) {
         updtId: updtId,
         status: "failed",
       });
-      ClearInputs()
+      //ClearInputs()
       setModalOpen(false);
       setisSpin(false);
       message.success("Status Recorded!");
@@ -153,7 +142,7 @@ function formatDateTimeToGPS(time, date) {
     const now = dayjs(); // Get the current date and time using Day.js
     setDate(now.format('DD MM YYYY')); // Set current date in the specified format
     setTime(now.format('h:mm a'));
-    setlatitude("1009.981600N") 
+    setlatitude("009.981600N") 
     setlongitude("076.299900E")// Set current time in the specified format
   }, []);
   return (
@@ -243,7 +232,7 @@ function formatDateTimeToGPS(time, date) {
                     htmlFor="latInput"
                     className="mb-1 text-gray-400 text-xs"
                   >
-                    Latitude 100&lt;[x.xxxx]&gt;00N
+                    Latitude 00&lt;[x.xxxx]&gt;00N
                   </label>
                   <input
                     id="latInput"
