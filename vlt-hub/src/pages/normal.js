@@ -34,7 +34,7 @@ const HomePage = () => {
     try {
       setisSpin(true);
       const TD = formatDateTimeToGPS(vlttime, vltDate);
-      const response = await axios.post('http://3.6.153.131:3000/trak24-liveupdate', {
+      const response = await axios.post('http://148.113.44.181:3000/trak24-liveupdate', {
         Imei: inputValue,
         Date: TD.formattedDate,
        Time: TD.formattedTime,
