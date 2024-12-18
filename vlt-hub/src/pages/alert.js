@@ -37,7 +37,7 @@ const HomePage = () => {
             const TD = formatDateTimeToGPS(vlttime, vltDate);
             if (alertMode === false) {
 
-                await axios.post('http://148.113.44.181:3000/trak24-liveupdate-alert-off', {
+                await axios.post('/trak24-liveupdate-alert-off', {
                     Imei: inputValue,
                     Date: TD.formattedDate,
                     Time: TD.formattedTime,
@@ -46,7 +46,7 @@ const HomePage = () => {
                 });
             } else {
                 
-                await axios.post('http://148.113.44.181:3000/trak24-liveupdate-alert-on', {
+                await axios.post('/trak24-liveupdate-alert-on', {
                     Imei: inputValue,
                     Date: TD.formattedDate,
                     Time: TD.formattedTime,
