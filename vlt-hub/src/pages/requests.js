@@ -180,7 +180,7 @@ const Normal = () => {
 
 
       if (DispatchType === 'NRM') {
-        await axios.post('http://148.113.44.181:3000/trak24-liveupdate', {
+        await axios.post('/trak24-liveupdate', {
           Imei: inputValue,
           Date: TD.formattedDate,
           Time: TD.formattedTime,
@@ -191,7 +191,7 @@ const Normal = () => {
       } else {
         if (alertMode === false) {
           console.log('off')
-          await axios.post('http://148.113.44.181:3000/trak24-liveupdate-alert-off', {
+          await axios.post('/trak24-liveupdate-alert-off', {
             Imei: inputValue,
             Date: TD.formattedDate,
             Time: TD.formattedTime,
@@ -200,7 +200,7 @@ const Normal = () => {
           });
         } else {
           console.log('on')
-          await axios.post('http://148.113.44.181:3000/trak24-liveupdate-alert-on', {
+          await axios.post('/trak24-liveupdate-alert-on', {
             Imei: inputValue,
             Date: TD.formattedDate,
             Time: TD.formattedTime,
